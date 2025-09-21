@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  googleAuth,
   resetPassword,
   sendOtp,
   signIn,
@@ -16,5 +17,6 @@ authRouter.get("/signout", signOut);
 authRouter.post("/send_otp", sendOtp);
 authRouter.post("/verify_otp", verifyOtp);
 authRouter.post("/reset_password", resetPassword);
+authRouter.post("/google_auth", googleAuth);
 
 export default authRouter;
