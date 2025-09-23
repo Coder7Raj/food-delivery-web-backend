@@ -40,15 +40,33 @@ export const createEditShop = async (req, res) => {
   }
 };
 
+// export const getMyShop = async (req, res) => {
+//   try {
+//     const shop = await Shop.findOne({ owner: req.userId }).populate(
+//       "owner items"
+//     );
+//     if (!shop) {
+//       return null;
+//     }
+//   } catch (error) {
+//     return res.status(500).json({ message: `get my shop error ${error}` });
+//   }
+// };
 export const getMyShop = async (req, res) => {
   try {
-    const shop = await Shop.findOne({ owner: req.userId }).populate(
-      "owner items"
-    );
+    const shop = await Shop.findOne({ owner: req.userId }).populate([
+      "owner",
+      "item", // ✅ match schema field
+    ]);
+
     if (!shop) {
-      return null;
+      return res.status(404).json({ message: "No shop found for this user" });
     }
+
+    return res.status(200).json(shop); // ✅ send response
   } catch (error) {
-    return res.status(500).json({ message: `get my shop error ${error}` });
+    return res
+      .status(500)
+      .json({ message: `get my shop error: ${error.message}` });
   }
 };
