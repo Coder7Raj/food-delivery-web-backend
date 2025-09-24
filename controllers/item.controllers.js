@@ -23,7 +23,10 @@ export const addItem = async (req, res) => {
     });
     shop.item.push(item._id);
     await shop.save();
-    await shop.populate("item owner");
+    await shop.populate("owner").populate({
+      path: "item",
+      options: { sort: { updatedAt: -1 } },
+    });
     return res.status(201).json(shop);
   } catch (error) {
     return res.status(400).json({ message: `add item error ${error}` });
@@ -52,7 +55,10 @@ export const editItem = async (req, res) => {
     if (!item) {
       return res.status(400).json({ message: "item not found" });
     }
-    const shop = await Shop.findOne({ owner: req.userId }).populate("item");
+    const shop = await Shop.findOne({ owner: req.userId }).populate({
+      path: "item",
+      options: { sort: { updatedAt: -1 } },
+    });
     return res.status(200).json(shop);
   } catch (error) {
     return res.status(400).json({ message: `edit item error ${error}` });
@@ -69,5 +75,25 @@ export const getItemById = async (req, res) => {
     return res.status(200).json(item);
   } catch (error) {
     return res.status(400).json({ message: `get item error ${error}` });
+  }
+};
+
+export const deleteItem = async (req, res) => {
+  try {
+    const itemId = req.params.itemId;
+    const item = await Item.findByIdAndDelete(itemId);
+    if (!item) {
+      return res.status(400).json({ message: "item not found" });
+    }
+    const shop = await Shop.findOne({ owner: req.userId });
+    shop.item = shop.item.filter((i) => i !== item._id);
+    await shop.save();
+    await shop.populate({
+      path: "item",
+      options: { sort: { updatedAt: -1 } },
+    });
+    return res.status(200).json(shop);
+  } catch (error) {
+    return res.status(400).json({ message: `delete item error ${error}` });
   }
 };
